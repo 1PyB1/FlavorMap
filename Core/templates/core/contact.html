@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="ContactBlock">
+
+    <form class="ContactForm" method="POST">
+
+        {% csrf_token %}
+
+        <h1 class="title">Get in Touch</h1>
+
+        <div class="TitleSection">
+            <label>Title</label>
+            <input type="text" name="title" placeholder="Please enter a title...">
+        </div>
+
+        <div class="MessageSection">
+            <label>What Do You Have In Mind?</label>
+            <textarea name="message" placeholder="Type message here..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit</button>
+
+    </form>
+
+    <div class="SocialMedia">
+        <i class="fa-brands fa-instagram"></i>
+        <i class="fa-brands fa-x-twitter"></i>
+        <i class="fa-brands fa-facebook"></i>
+        <i class="fa-brands fa-google"></i>
+    </div>
+
+</div>
+
+{% endblock %}

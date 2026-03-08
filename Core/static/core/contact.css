@@ -1,0 +1,123 @@
+body{
+    background: linear-gradient(
+        #5da2d5 0px,
+        #5da2d5 300px,
+        #f3f3f3 300px    
+    );
+    min-height:100vh;
+    margin:0;
+}
+.ContactBlock{
+    background:white;
+    max-width:600px;
+    margin:80px auto;
+    padding:40px;
+
+    border-radius:8px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.ContactForm{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* başlık */
+
+.title{
+    text-align:center;
+}
+.TitleSection{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.MessageSection{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+label{
+    font-size: 20px;
+    font-weight:200;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/* input ve textarea */
+
+.ContactBlock input,
+.ContactBlock textarea{
+    width:100%;
+    padding:12px;
+
+    border: 1.5px solid #e0e0e0;
+    border-radius:4px;
+    font-family: 'Inter', sans-serif;
+    box-sizing:border-box;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+.ContactBlock input:focus,
+.ContactBlock textarea:focus{
+    border-color: #3e8ec9;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(62, 142, 201, 0.15);
+}
+
+/* textarea */
+
+.ContactBlock textarea{
+    height:180px;
+    resize: none
+}
+
+
+/* button */
+
+.submit-btn{
+    background: #3e8ec9;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+.submit-btn:hover{
+    background: #5da2d5;
+    transform: translateY(-2px); /* Üzerine gelince hafifçe yukarı kalkar */
+    box-shadow: 0 4px 12px rgba(62, 142, 201, 0.3);
+}
+.submit-btn:active{
+    background: #7ebceb;
+}
+
+
+/* social icons */
+
+.SocialMedia{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    font-size:20px;
+    transition: 0.2s;
+    color: #3e8ec9;
+    
+}
+.SocialMedia i:hover{
+    transform:scale(1.2);
+    cursor:pointer;
+}
+.SocialMedia i:active{
+    transform:scale(1.3);
+}
