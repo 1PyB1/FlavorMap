@@ -1,32 +1,96 @@
-body {
+/* ============================================================
+   style.css  –  FlavorMap Global Styles
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
-    font-family: Arial, sans-serif;
+    padding: 0;
 }
 
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f2f7;
+    color: #1a1f36;
+}
+
+/* ---------- Navbar ---------- */
 .navbar {
-    background-color: #002368;
+    background-color: #0b1437;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
+    padding: 0 48px;
+    height: 80px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,.3);
 }
 
 .logo {
-    font-weight: bold;
-    font-size: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: white;
+    letter-spacing: .5px;
+}
+
+.logo span {
+    color: #f5a623;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
 }
 
 .nav-links a {
-    color: white;
+    color: rgba(255,255,255,.75);
     text-decoration: none;
-    margin-left: 20px;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: .3px;
+    transition: color .2s;
 }
 
 .nav-links a:hover {
-    color: orange;
+    color: white;
 }
 
+.nav-links a.active {
+    color: white;
+    font-weight: 500;
+}
+
+.fa-solid.fa-circle-user {
+    font-size: 30px;
+    color: rgba(255,255,255,.75);
+    transition: color .2s;
+    vertical-align: middle;
+}
+
+.fa-solid.fa-circle-user:hover {
+    color: white;
+}
+
+/* ---------- Container ---------- */
 .container {
-    padding: 40px;
+    /* contact sayfası kendi padding'ini yönetir */
+    padding-bottom:60px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .navbar {
+        padding: 0 20px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
 }

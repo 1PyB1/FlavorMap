@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/restaurant.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class = "restaurantcardobject">
+{% for restaurant in restaurants %}
+    <div class="restaurantcard">
+        <h2>{{ restaurant.name }}</h2>
+        <p>{{ restaurant.description }}</p>
+        <p>{{ restaurant.location }}</p>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

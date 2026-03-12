@@ -2,5 +2,15 @@
 
 {% block content %}
 <h1>Hoşgeldin</h1>
+<h2>Restaurants</h2>
+
+{% for restaurant in restaurants %}
+    <div>
+        <h2>{{ restaurant.name }}</h2>
+        <p>{{ restaurant.description }}</p>
+        <p>{{ restaurant.location }}</p>
+        <p>{{ restaurant.date }}</p>
+    </div>
+{% endfor %}
 <p>Halil şaşkın</p>
 {% endblock %}

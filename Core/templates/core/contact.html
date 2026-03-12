@@ -6,6 +6,10 @@
 {% endblock %}
 
 {% block content %}
+<div class="hero-band">
+  <div class="hero-blob"></div>
+  <div class="hero-blob2"></div>
+</div>
 
 <div class="ContactBlock">
 
@@ -14,9 +18,11 @@
         {% csrf_token %}
 
         <h1 class="title">Get in Touch</h1>
+        <h3 class="h3title">We usually respond within 24 hours</h3>
 
         <div class="TitleSection">
             <label>Title</label>
+            
             <input type="text" name="title" placeholder="Please enter a title...">
         </div>
 
@@ -37,5 +43,7 @@
     </div>
 
 </div>
+
+
 
 {% endblock %}
