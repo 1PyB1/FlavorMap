@@ -1,4 +1,6 @@
-
+html, body{
+overflow-x:hidden;
+}
 .ContactBlock{
     background:white;
     max-width:600px;
@@ -151,4 +153,25 @@ label{
 }
 .SocialMedia i:active{
     transform:scale(1.3);
+}
+@media (max-width: 992px) {
+    .hero-band { height: 220px; padding: 0 20px; }
+    .ContactBlock { width: 92%; margin: -80px auto 40px auto; padding: 30px; }
+    .ContactBlock textarea { height: 150px; }
+}
+
+/* 2. Sonra orta kırılma noktası (Tablet Dikey / Büyük Telefon) */
+@media (max-width: 768px) {
+    .hero-band { height: 220px; padding: 0 20px; }
+    .ContactBlock { width: 92%; margin: -80px auto 40px auto; padding: 30px; }
+    .ContactBlock textarea { height: 150px; }
+}
+
+/* 3. En sona en küçük kırılma noktası (Mobil Telefonlar) */
+@media (max-width: 576px) {
+    .ContactBlock { width: 95%; padding: 25px; }
+    .title { font-size: 24px; }
+    .h3title { font-size: 14px; }
+    label { font-size: 16px; } /* 900px'teki dev 24px label'ı ezip normale döndürüyoruz */
+    .ContactBlock textarea { height: 130px; }
 }

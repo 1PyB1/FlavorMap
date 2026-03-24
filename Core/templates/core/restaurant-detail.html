@@ -1,0 +1,100 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'core/restaurant-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="restaurant-main-container">
+
+    <div class="restaurant-upper-section">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">
+                    <span class="message-text">Yorumunuz eklendi!</span>
+                    <button type="button" class="close-message">×</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {# 2. Ana Detay Alanı (İki Sütunlu Düzen) #}
+    <div class="restaurant-detail-main">
+        
+        {# Sol Sütun: Restoran Resmi #}
+        <div class="left-column">
+            <div class="restaurant-image-wrapper">
+                {% if restaurant.image %}
+                    <img class="restaurant-image" src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                {% endif %}
+                <div class="restaurant-placeholder">🍽️</div>
+            </div>
+        </div>
+
+        {# Sağ Sütun: Restoran Bilgileri #}
+        <div class="right-column">
+            <div class="restaurant-info-header">
+                <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+                <div class="rating-badge">
+                    <span class="rating-icon"><i class="fas fa-star"></i></span>
+                    <span class="rating-value">{{ restaurant.rating|floatformat:1 }}</span>
+                </div>
+            </div>
+
+            <div class="restaurant-tags">
+                {%for category in restaurant.categories.all %}
+                <span class="category-tag">{{category}}</span>
+                {% endfor %}
+                {# Burası modeline göre dinamik olabilir (örn: restaurant.category.name) #}
+            </div>
+
+            <div class="restaurant-contact-info">
+                <i class="fas fa-map-marker-alt location-icon"></i>
+                <span class="restaurant-location">{{ restaurant.location }}</span>
+            </div>
+
+            <p class="restaurant-description">{{ restaurant.description }}</p>
+
+            <div class="user-interaction-box">
+                <i class="far fa-check-circle interaction-icon"></i>
+                <span class="interaction-message">You gave this restaurant 4 stars.</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="comments-section">
+        <div class="comments-header">
+            <i class="far fa-comments comments-icon"></i>
+            <h2 class="comments-title">Reviews (2)</h2>
+        </div>
+
+        {# Yorum Ekleme #}
+
+        {# Yorum Listesi#}
+        <div class="comments-list">
+            <div class="comment-card">
+                <div class="comment-meta">
+                    <span class="comment-user">Mustafa123</span>
+                    <span class="comment-date">15 Mar 2026</span>
+                    <div class="comment-rating">
+                        <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                    </div>
+                </div>
+                <p class="comment-text">Patatesler Çok Kuruydu >:(</p>
+            </div>
+
+            <div class="comment-card">
+                <div class="comment-meta">
+                    <span class="comment-user">Selim</span>
+                    <span class="comment-date">15 Mar 2026</span>
+                    <div class="comment-rating">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                    </div>
+                </div>
+                <p class="comment-text">Güzel!</p>
+            </div>
+
+</div>
+{% endblock %}

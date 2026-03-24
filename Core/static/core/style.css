@@ -1,6 +1,4 @@
-/* ============================================================
-   style.css  –  FlavorMap Global Styles
-   ============================================================ */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -10,11 +8,15 @@
     margin: 0;
     padding: 0;
 }
-
-body {
+html, body {
     font-family: 'DM Sans', sans-serif;
     background: #f0f2f7;
     color: #1a1f36;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    margin: 0;
+    padding: 0;
 }
 
 /* ---------- Navbar ---------- */
@@ -82,15 +84,44 @@ body {
 .container {
     /* contact sayfası kendi padding'ini yönetir */
     padding-bottom:60px;
+    overflow-x: hidden;
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 600px) {
+@media (max-width: 992px) {
     .navbar {
-        padding: 0 20px;
+        padding: 0px 20px;
+    }
+    .nav-links {
+        gap: 15px; /* 32px'lik aralıkları daralttık */
+    }
+}
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 20px; 
+    }
+
+}
+@media (max-width: 576px) {
+    .navbar {
+        padding: 15px 20px;
+        height: auto; 
+        flex-direction: column; 
+        gap: 15px; 
     }
 
     .nav-links {
-        gap: 16px;
+        gap: 15px; 
+        flex-wrap: wrap; 
+        justify-content: center;
+    }
+
+    .nav-links a {
+        font-size: 14px; 
+    }
+
+    .fa-solid.fa-circle-user {
+        font-size: 24px; 
     }
 }
+

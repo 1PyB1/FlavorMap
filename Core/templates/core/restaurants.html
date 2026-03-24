@@ -6,13 +6,46 @@
 {% endblock %}
 
 {% block content %}
-<div class = "restaurantcardobject">
-{% for restaurant in restaurants %}
-    <div class="restaurantcard">
-        <h2>{{ restaurant.name }}</h2>
-        <p>{{ restaurant.description }}</p>
-        <p>{{ restaurant.location }}</p>
+<div class="page-wrapper">
+
+    <div class="restaurantcardobject">
+        {% for restaurant in page_obj %}
+        <a href="{% url 'restaurant-detail' restaurant.id %}" class="restaurant-card">
+            <div class="restaurant-image-wrapper">
+                {% if restaurant.image %}
+                    <img class="restaurant-image" src="{{ restaurant.image.url }}" alt="">
+                {% else %}
+                    <div class="restaurant-placeholder">🍽️</div>
+                {% endif %}
+            </div>
+            <div class="restaurant-info">
+                <h3>{{ restaurant.name }}</h3>
+                <p> ⭐ {{ restaurant.rating}}</p>
+                <p>{{ restaurant.location }}</p>
+            </div>
+        </a>
+        {% endfor %}
     </div>
-{% endfor %}
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">←</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <strong>{{ num }}</strong>
+            {% else %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">→</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last</a>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
