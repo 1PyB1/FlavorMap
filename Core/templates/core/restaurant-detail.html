@@ -19,7 +19,7 @@
         {% endif %}
     </div>
 
-    {# 2. Ana Detay Alanı (İki Sütunlu Düzen) #}
+    {# 2. Ana Detay Alanı #}
     <div class="restaurant-detail-main">
         
         {# Sol Sütun: Restoran Resmi #}
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        {# Sağ Sütun: Restoran Bilgileri #}
+        {#Restoran Bilgileri #}
         <div class="right-column">
             <div class="restaurant-info-header">
                 <h1 class="restaurant-name">{{ restaurant.name }}</h1>
@@ -46,7 +46,6 @@
                 {%for category in restaurant.categories.all %}
                 <span class="category-tag">{{category}}</span>
                 {% endfor %}
-                {# Burası modeline göre dinamik olabilir (örn: restaurant.category.name) #}
             </div>
 
             <div class="restaurant-contact-info">
@@ -69,8 +68,6 @@
             <i class="far fa-comments comments-icon"></i>
             <h2 class="comments-title">Reviews (2)</h2>
         </div>
-
-        {# Yorum Ekleme #}
 
         {# Yorum Listesi#}
         <div class="comments-list">
