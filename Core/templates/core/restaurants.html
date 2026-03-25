@@ -16,7 +16,7 @@
                         <circle cx="6.5" cy="6.5" r="4"/>
                         <path d="M10.5 10.5l3 3"/>
                     </svg>
-                    <input name="search" type="text" id="searchInput-field" placeholder="Ara..." autocomplete="off">
+                    <input name="search" type="text" id="searchInput-field" placeholder="Search..." autocomplete="off">
                     <button class="searchInput-clearBtn" id="searchInput-clearBtn">✕</button>
                 </div>
 
@@ -29,7 +29,7 @@
                                 {% if request.GET.category == cat.id|stringformat:"s" %}{{ cat.name }}{% endif %}
                             {% endfor %}
                         {% else %}
-                            Tüm Kategoriler
+                            All Categories
                         {% endif %}
                       </span>
                         <svg class="dropdownSelect-arrow" id="dropdownSelect-arrow" viewBox="0 0 16 16" fill="none"
@@ -42,7 +42,7 @@
                         <div class="dropdownSelect-item {% if not request.GET.category %}dropdownSelect-selected dropdownSelect-check{% endif %}"
                              onclick="dropdownSelectPick(this)"
                              data-value="">
-                            Tüm Kategoriler
+                            All Categories
                         </div>
 
                         <div class="dropdownSelect-divider"></div>
