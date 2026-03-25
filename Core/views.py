@@ -11,7 +11,7 @@ def profile_page(request):
 def restaurants_page(request):
     restaurants = Restaurant.objects.all()
 
-    paginator = Paginator(restaurants, 9) 
+    paginator = Paginator(restaurants, 12) 
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
