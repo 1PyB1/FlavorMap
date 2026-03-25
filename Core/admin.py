@@ -10,7 +10,7 @@ class RestaurantAdmin(admin.ModelAdmin):
 
     search_fields = ("name", "location__city", "location__district", "location__area", "date")
 
-    list_filter = ("location__city", "location__district", "location__area" , "date")
+    list_filter = ("location__city", "location__district", "location__area" , "date" , "categories")
 
     ordering = ("name",)
 
