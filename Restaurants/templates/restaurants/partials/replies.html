@@ -1,0 +1,30 @@
+<div class="replies-section">
+    {% for reply in review.replies.all %}
+        <div class="reply-item">
+            <div class="reply-avatar">{{ reply.user|truncatechars:2|upper }}</div>
+            <div class="reply-bubble">
+                <span class="reply-username">{{ reply.user }}</span>
+                <span class="reply-text">{{ reply.text }}</span>
+            </div>
+            {% if request.user.is_authenticated and reply.user == request.user.profile %}
+                <form method="POST" action="{% url 'delete_reply' reply.id %}" class="reply-delete-form">
+                    {% csrf_token %}
+                    <button type="submit" class="reply-delete-btn" title="Sil">&times;</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    {% if request.user.is_authenticated %}
+        <div class="reply-input-row">
+            <div class="reply-avatar reply-avatar-own">{{ request.user.username|first|upper }}</div>
+            <form method="POST" action="{% url 'add_reply' review.id %}" class="reply-form">
+                {% csrf_token %}
+                <input type="text" name="text" placeholder="Yanıtla..." maxlength="500" autocomplete="off" class="reply-input">
+                <button type="submit" class="reply-submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>

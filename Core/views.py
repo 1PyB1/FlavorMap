@@ -1,41 +1,38 @@
 from django.shortcuts import render
-from .models import Location, Restaurant, Category
-from django.core.paginator import Paginator
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from .forms import PostUserResponse
+
+from .models import UserResponse, Restaurant, Category
 
 def home_page(request):
-    return render(request, "core/home.html")
+    featured_restaurants = Restaurant.objects.select_related("location").prefetch_related("categories")[:4]
+    latest_restaurants = Restaurant.objects.select_related("location").order_by("-date")[:3]
+    category_count = Category.objects.count()
+    restaurant_count = Restaurant.objects.count()
+
+    return render(
+        request,
+        "core/home.html",
+        {
+            "featured_restaurants": featured_restaurants,
+            "latest_restaurants": latest_restaurants,
+            "category_count": category_count,
+            "restaurant_count": restaurant_count,
+        },
+    )
+
+@login_required(login_url="/Accounts/login/")
 def contact_page(request):
-    return render(request, template_name= "core/contact.html")
-def profile_page(request):
-    return render(request, template_name= "core/profile.html")
-def restaurants_page(request):
-    restaurants = Restaurant.objects.all()
-    categories = Category.objects.all()
-
-    category_id = request.GET.get('category')
-    search = request.GET.get('search')
-
-    if category_id:
-        restaurants = restaurants.filter(categories=category_id)
-
-    if search:
-        restaurants = restaurants.filter(name__icontains=search)
-
-    if search and category_id:
-        restaurants = restaurants.filter(categories=category_id, name__icontains=search)
-
-    paginator = Paginator(restaurants, 12)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'core/restaurants.html', {
-        'page_obj': page_obj,
-        'categories': categories,
-    })
-def restaurant_detail(request, id):
-    restaurant = Restaurant.objects.get(id=id)
-
-    return render(request,"core/restaurant-detail.html",{
-        "restaurant": restaurant
-    })
+    if request.method == "POST":
+        form = PostUserResponse(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            message_section = form.cleaned_data["message_section"]
+            profile = request.user.profile
+            post = UserResponse(user=profile,title=title , message_section=message_section)
+            post.save()
+            return HttpResponseRedirect('/contact')
+    else:
+        form = PostUserResponse()
+    return render(request, "core/contact.html", {"form": form})

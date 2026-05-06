@@ -1,0 +1,101 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <!-- Header / Hero -->
+    <div class="profile-hero">
+        <div class="profile-hero-bg"></div>
+        <div class="profile-hero-content">
+            <div class="profile-avatar">
+                {{ profile.name|first|upper }}
+            </div>
+            <div class="profile-hero-info">
+                <h1 class="profile-hero-name">{{ profile.name }}</h1>
+                <p class="profile-hero-username">@{{ request.user.username }}</p>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="profile-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="profile-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </button>
+            </form>
+        </div>
+
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <span class="profile-stat-value">{{ favorite_restaurants|length }}</span>
+                <span class="profile-stat-label">Favorites</span>
+            </div>
+            <div class="profile-stat-divider"></div>
+            <div class="profile-stat">
+                <span class="profile-stat-value">{{ review_count }}</span>
+                <span class="profile-stat-label">Reviews</span>
+            </div>
+            {% if request.user.email %}
+            <div class="profile-stat-divider"></div>
+            <div class="profile-stat">
+                <span class="profile-stat-value profile-stat-email">
+                    <i class="fas fa-envelope"></i> {{ request.user.email }}
+                </span>
+                <span class="profile-stat-label">Email</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Favorites Section -->
+    <div class="profile-section">
+        <div class="profile-section-header">
+            <h2><i class="fas fa-heart" style="color:#e74c3c;"></i> My Favorite Restaurants</h2>
+            <a href="{% url 'restaurants' %}" class="profile-section-link">All Restaurants →</a>
+        </div>
+
+        {% if favorite_restaurants %}
+            <div class="profile-fav-grid">
+                {% for restaurant in favorite_restaurants %}
+                    <a href="{% url 'restaurant_detail' restaurant.id %}" class="profile-fav-card">
+                        <div class="profile-fav-image">
+                            {% if restaurant.image %}
+                                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                            {% else %}
+                                <div class="profile-fav-placeholder">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                            {% endif %}
+                            <div class="profile-fav-rating-badge">
+                                <i class="fas fa-star"></i> {{ restaurant.rating }}
+                            </div>
+                        </div>
+                        <div class="profile-fav-body">
+                            <h3>{{ restaurant.name }}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ restaurant.location }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="profile-empty">
+                <i class="far fa-star profile-empty-icon"></i>
+                <h3>No favorite restaurants yet</h3>
+                <p>Browse restaurants and save the ones you like.</p>
+                <a href="{% url 'restaurants' %}" class="profile-empty-btn">Browse Restaurants</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Owner CTA -->
+    <div class="profile-section profile-owner-cta">
+        <div class="profile-section-header">
+            <h2><i class="fas fa-store"></i> Are You a Restaurant Owner?</h2>
+        </div>
+        <p>If you own a restaurant listed on FlavorMap and want to manage your page (menu, photos, description, hours), contact us at <a href="mailto:pbingol10@gmail.com" class="profile-owner-mail">pbingol10@gmail.com</a></p>
+    </div>
+
+</div>
+{% endblock %}

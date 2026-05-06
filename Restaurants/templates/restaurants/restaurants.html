@@ -1,0 +1,242 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'restaurants/restaurant.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="page-wrapper">
+        <div class="searchInput-container">
+            <form method="GET" id="restaurant-filters-form">
+                <div class="searchInput-box" id="searchInput-box">
+                    <svg class="searchInput-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="6.5" cy="6.5" r="4"/>
+                        <path d="M10.5 10.5l3 3"/>
+                    </svg>
+                    <input name="search" type="text" id="searchInput-field" placeholder="Search..." autocomplete="off" value="{{ request.GET.search|default:'' }}">
+                    <button class="searchInput-clearBtn" id="searchInput-clearBtn" type="button" aria-label="Clear search">&times;</button>
+                </div>
+
+                <div class="dropdownSelect-dd" id="dropdownSelect-dd">
+                    <button type="button" class="dropdownSelect-btn" id="dropdownSelect-btn" onclick="dropdownSelectToggle()">
+                        <span id="dropdownSelect-label">
+                            {% if request.GET.category %}
+                                {% for cat in categories %}
+                                    {% if request.GET.category == cat.id|stringformat:"s" %}{{ cat.name }}{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                All Categories
+                            {% endif %}
+                        </span>
+                        <svg class="dropdownSelect-arrow" id="dropdownSelect-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 6l4 4 4-4"/>
+                        </svg>
+                    </button>
+
+                    <div class="dropdownSelect-menu" id="dropdownSelect-menu">
+                        <div class="dropdownSelect-search">
+                            <input type="text" id="dropdownSelect-search" placeholder="Search..." oninput="dropdownSelectFilter(this.value)" onclick="event.stopPropagation()">
+                        </div>
+                        <div class="dropdownSelect-list" id="dropdownSelect-list">
+                            <div class="dropdownSelect-item {% if not request.GET.category %}dropdownSelect-selected dropdownSelect-check{% endif %}" onclick="dropdownSelectPick(this)" data-value="">
+                                All Categories
+                            </div>
+                            <div class="dropdownSelect-divider"></div>
+                            {% for cat in categories %}
+                                <div class="dropdownSelect-item {% if request.GET.category == cat.id|stringformat:'s' %}dropdownSelect-selected dropdownSelect-check{% endif %}" onclick="dropdownSelectPick(this)" data-value="{{ cat.id }}">
+                                    {{ cat.name }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="category" id="dropdownSelect-input" value="{{ request.GET.category }}">
+                </div>
+
+                <div class="priceRangeFilter-box">
+                    <label class="priceRangeFilter-label" for="price-range-select">Price</label>
+                    <select name="price_range" id="price-range-select" class="priceRangeFilter-select">
+                        <option value="">All Prices</option>
+                        {% for value, label in price_range_choices %}
+                            <option value="{{ value }}" {% if request.GET.price_range == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if request.user.is_authenticated %}
+                    <input type="hidden" name="favorites" id="favorites-input" value="{{ request.GET.favorites }}">
+                    <button type="button"
+                        id="favorites-btn"
+                        onclick="toggleFavoritesFilter()"
+                        class="favorites-filter-btn {% if request.GET.favorites %}active{% endif %}">
+                        {% if request.GET.favorites %}★{% else %}☆{% endif %} Favorites
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="restaurantcardobject">
+            {% for restaurant in page_obj %}
+                <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-card">
+                    <div class="restaurant-image-wrapper">
+                        {% if restaurant.image %}
+                            <img class="restaurant-image" src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                        {% elif restaurant.image_url %}
+                            <img class="restaurant-image" src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}">
+                        {% else %}
+                            <div class="restaurant-placeholder">No image</div>
+                        {% endif %}
+                    </div>
+                    <div class="restaurant-info">
+                        <h3>{{ restaurant.name }}</h3>
+                        <p><i class="fas fa-star" aria-hidden="true"></i> {{ restaurant.rating }}</p>
+                        <p class="restaurant-price-range">{{ restaurant.price_range }}</p>
+                        <p>{{ restaurant.location }}</p>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                    <div class="favorite-star {% if restaurant.id in favorited_ids %}favorited{% endif %}"
+                        onclick="toggleFavorite(event, this)"
+                        data-id="{{ restaurant.id }}">
+                        {% if restaurant.id in favorited_ids %}★{% else %}☆{% endif %}
+                    </div>
+                    {% endif %}
+                </a>
+                
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if current_query %}{{ current_query }}&{% endif %}page=1">first</a>
+                <a href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.previous_page_number }}">&larr;</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <strong>{{ num }}</strong>
+                {% else %}
+                    <a href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.next_page_number }}">&rarr;</a>
+                <a href="?{% if current_query %}{{ current_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}">last</a>
+            {% endif %}
+        </div>
+
+        <script>
+            const filtersForm = document.getElementById("restaurant-filters-form");
+            const searchField = document.getElementById("searchInput-field");
+            const clearSearchBtn = document.getElementById("searchInput-clearBtn");
+            const priceRangeSelect = document.getElementById("price-range-select");
+
+            function updateSearchClearButton() {
+                clearSearchBtn.classList.toggle("searchInput-visible", Boolean(searchField.value.trim()));
+            }
+
+            function submitSearchWithResetPage() {
+                const pageInput = filtersForm.querySelector('input[name="page"]');
+                if (pageInput) {
+                    pageInput.remove();
+                }
+                filtersForm.submit();
+            }
+
+            searchField.addEventListener("input", updateSearchClearButton);
+
+            searchField.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    submitSearchWithResetPage();
+                }
+            });
+
+            clearSearchBtn.addEventListener("click", () => {
+                searchField.value = "";
+                updateSearchClearButton();
+                submitSearchWithResetPage();
+            });
+
+            priceRangeSelect.addEventListener("change", submitSearchWithResetPage);
+
+            updateSearchClearButton();
+
+            let dropdownSelectOpen = false;
+
+            function dropdownSelectToggle() {
+                dropdownSelectOpen = !dropdownSelectOpen;
+                document.getElementById("dropdownSelect-menu").classList.toggle("dropdownSelect-open", dropdownSelectOpen);
+                document.getElementById("dropdownSelect-btn").classList.toggle("dropdownSelect-open", dropdownSelectOpen);
+                document.getElementById("dropdownSelect-arrow").classList.toggle("dropdownSelect-rot", dropdownSelectOpen);
+                if (!dropdownSelectOpen) {
+                    const s = document.getElementById("dropdownSelect-search");
+                    s.value = "";
+                    dropdownSelectFilter("");
+                } else {
+                    setTimeout(() => document.getElementById("dropdownSelect-search").focus(), 50);
+                }
+            }
+
+            function dropdownSelectFilter(query) {
+                const q = query.toLowerCase();
+                document.querySelectorAll("#dropdownSelect-list .dropdownSelect-item, #dropdownSelect-list .dropdownSelect-divider").forEach(el => {
+                    if (el.classList.contains("dropdownSelect-divider")) { el.style.display = q ? "none" : ""; return; }
+                    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
+                });
+            }
+
+            function dropdownSelectPick(el) {
+                document.getElementById("dropdownSelect-label").textContent = el.textContent.trim();
+                document.querySelectorAll(".dropdownSelect-item").forEach((item) => item.classList.remove("dropdownSelect-selected", "dropdownSelect-check"));
+                el.classList.add("dropdownSelect-selected", "dropdownSelect-check");
+                document.getElementById("dropdownSelect-input").value = el.dataset.value;
+                dropdownSelectToggle();
+                el.closest("form").submit();
+            }
+
+            document.addEventListener("click", (event) => {
+                if (!document.getElementById("dropdownSelect-dd").contains(event.target) && dropdownSelectOpen) {
+                    dropdownSelectToggle();
+                }
+            });
+        </script>
+        <script>
+            function toggleFavoritesFilter() {
+                const input = document.getElementById("favorites-input");
+                input.value = input.value ? "" : "1";
+                input.closest("form").submit();
+            }
+
+            function getCookie(name) {
+                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? decodeURIComponent(match[2]) : null;
+            }
+
+            function toggleFavorite(event, el) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const id = el.dataset.id;
+                fetch(`/restaurants/favorite/${id}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.is_favorited) {
+                        el.innerHTML = "★";
+                        el.classList.add("favorited");
+                    } else {
+                        el.innerHTML = "☆";
+                        el.classList.remove("favorited");
+                    }
+                });
+            }
+        </script>
+    </div>
+{% endblock %}

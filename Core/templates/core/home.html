@@ -1,5 +1,115 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/home.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Home Page(Coming Soon)</h1>
+<section class="home-shell">
+    <section class="hero-panel">
+        <div class="hero-copy">
+            <span class="hero-kicker">FlavorMap Guide</span>
+            <h1>Find your next favorite place to eat.</h1>
+            <p>
+                Explore restaurants, browse reviews, and discover spots that match your mood,
+                neighborhood, and taste.
+            </p>
+            <div class="hero-actions">
+                <a href="{% url 'restaurants' %}" class="hero-btn hero-btn-primary">Browse Restaurants</a>
+                <a href="{% url 'contact' %}" class="hero-btn hero-btn-secondary">Contact Us</a>
+            </div>
+        </div>
+
+        <div class="hero-summary">
+            <div class="summary-card">
+                <span class="summary-label">Restaurants</span>
+                <strong>{{ restaurant_count }}</strong>
+                <p>Growing collection of places you can explore in one view.</p>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">Categories</span>
+                <strong>{{ category_count }}</strong>
+                <p>From quick bites to dinner spots, organized by taste and style.</p>
+            </div>
+            <div class="summary-card summary-card-accent">
+                <span class="summary-label">Community</span>
+                <strong>Real Reviews</strong>
+                <p>See what other visitors think before choosing your next stop.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-grid">
+        <div class="content-block">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Featured Picks</span>
+                    <h2>Popular places to start with</h2>
+                </div>
+                <a href="{% url 'restaurants' %}" class="section-link">View all</a>
+            </div>
+
+            <div class="restaurant-grid">
+                {% for restaurant in featured_restaurants %}
+                <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-card-home">
+                    <div class="restaurant-card-image">
+                        {% if restaurant.image %}
+                            <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                        {% else %}
+                            <div class="restaurant-card-placeholder">No Image</div>
+                        {% endif %}
+                    </div>
+                    <div class="restaurant-card-body">
+                        <div class="restaurant-card-top">
+                            <h3>{{ restaurant.name }}</h3>
+                            <span class="restaurant-rating">{{ restaurant.rating|floatformat:1 }}</span>
+                        </div>
+                        <p>{{ restaurant.description|truncatechars:110 }}</p>
+                        <span class="restaurant-location-home">{{ restaurant.location }}</span>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="empty-state">
+                    <h3>No restaurants yet</h3>
+                    <p>Add restaurants to start filling your homepage content.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <aside class="sidebar-block">
+            <div class="section-heading section-heading-stack">
+                <span class="section-kicker">Latest Additions</span>
+                <h2>New on FlavorMap</h2>
+            </div>
+
+            <div class="latest-list">
+                {% for restaurant in latest_restaurants %}
+                <a href="{% url 'restaurant_detail' restaurant.id %}" class="latest-item">
+                    <div class="latest-item-copy">
+                        <strong>{{ restaurant.name }}</strong>
+                        <span>{{ restaurant.location }}</span>
+                    </div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                {% empty %}
+                <div class="empty-state empty-state-compact">
+                    <p>No recent restaurants available.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="cta-panel">
+                <span class="section-kicker">Start Exploring</span>
+                <h3>Use FlavorMap to compare places faster.</h3>
+                <p>
+                    Open the restaurant list, read ratings, and jump into each detail page
+                    to see location and reviews.
+                </p>
+                <a href="{% url 'restaurants' %}" class="hero-btn hero-btn-primary">Open Restaurant List</a>
+            </div>
+        </aside>
+    </section>
+</section>
 {% endblock %}

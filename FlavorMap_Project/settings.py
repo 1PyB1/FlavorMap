@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Core',
+    'Accounts',
+    'Restaurants',
 ]
 
 MIDDLEWARE = [
@@ -119,4 +121,7 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Mapillary ücretsiz API token — https://www.mapillary.com/developer adresinden alınır
+MAPILLARY_ACCESS_TOKEN = "MLY|26614527721549850|31b9e55f01142559ebcfed21b525ff6a"
 

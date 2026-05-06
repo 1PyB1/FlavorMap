@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-card">
+        <p class="auth-eyebrow">Welcome Back</p>
+        <h1>Login</h1>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
+                <p class="field-error">{{ error }}</p>
+            {% endfor %}
+
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            {% for error in form.password.errors %}
+                <p class="field-error">{{ error }}</p>
+            {% endfor %}
+
+            <button type="submit" class="auth-button">Login</button>
+        </form>
+
+        <p class="auth-switch">No account yet? <a href="{% url 'register' %}">Create one</a></p>
+    </div>
+</section>
+{% endblock %}

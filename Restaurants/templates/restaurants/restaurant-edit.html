@@ -1,0 +1,141 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'restaurants/restaurant-detail.css' %}">
+    <link rel="stylesheet" href="{% static 'restaurants/restaurant-edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="edit-page">
+
+    <div class="edit-header">
+        <div>
+            <h1>{{ restaurant.name }}</h1>
+            <a href="{% url 'restaurant_detail' restaurant.id %}" class="edit-back">← Back to page</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="edit-message edit-message--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Restaurant Details Form -->
+    <div class="edit-card">
+        <h2 class="edit-card-title">Restaurant Details</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="edit-grid">
+
+                <div class="edit-field edit-field--full">
+                    <label>Cover Photo</label>
+                    {% if restaurant.image %}
+                        <img src="{{ restaurant.image.url }}" class="edit-current-img" alt="current">
+                    {% endif %}
+                    {{ form.image }}
+                </div>
+
+                <div class="edit-field edit-field--full">
+                    <label>Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="edit-field">
+                    <label>Phone</label>
+                    {{ form.phone }}
+                </div>
+
+                <div class="edit-field">
+                    <label>Website</label>
+                    {{ form.website }}
+                </div>
+
+                <div class="edit-field edit-field--full">
+                    <label>Opening Hours</label>
+                    {{ form.opening_hours }}
+                </div>
+
+                <div class="edit-field edit-price-field">
+                    <label>Price Range</label>
+                    <p class="edit-field-hint">Set how expensive this place feels for guests.</p>
+                    {{ form.price_range }}
+                </div>
+
+                <div class="edit-field edit-field--full">
+                    <label>Categories</label>
+                    <div class="edit-checkboxes">
+                        {{ form.categories }}
+                    </div>
+                </div>
+
+            </div>
+            <button type="submit" name="save_details" class="edit-btn edit-btn--primary">Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Menu Management -->
+    <div class="edit-card">
+        <h2 class="edit-card-title">Menu Items</h2>
+
+        {% if menu_items %}
+        <table class="edit-menu-table">
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Item</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in menu_items %}
+                <tr>
+                    <td>{{ item.section|default:"—" }}</td>
+                    <td>{{ item.item_name }}</td>
+                    <td class="edit-menu-desc">{{ item.description|default:"—" }}</td>
+                    <td>₺{{ item.price }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'menu_item_delete' item.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="edit-btn edit-btn--danger edit-btn--sm"
+                                onclick="return confirm('Delete this item?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="edit-empty">No menu items yet.</p>
+        {% endif %}
+
+        <h3 class="edit-subheading">Add Item</h3>
+        <form method="POST" action="{% url 'menu_item_add' restaurant.id %}">
+            {% csrf_token %}
+            <div class="edit-grid edit-grid--menu">
+                <div class="edit-field">
+                    <label>Section</label>
+                    {{ menu_form.section }}
+                </div>
+                <div class="edit-field">
+                    <label>Item Name *</label>
+                    {{ menu_form.item_name }}
+                </div>
+                <div class="edit-field">
+                    <label>Description</label>
+                    {{ menu_form.description }}
+                </div>
+                <div class="edit-field">
+                    <label>Price (₺) *</label>
+                    {{ menu_form.price }}
+                </div>
+            </div>
+            <button type="submit" class="edit-btn edit-btn--primary">Add Item</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

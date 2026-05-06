@@ -1,0 +1,350 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'restaurants/restaurant-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="restaurant-main-container" id="top">
+    <div class="restaurant-upper-section">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="success-message">
+                    <span class="message-text">{{ message }}</span>
+                    <button type="button" class="close-message">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="restaurant-detail-main">
+        <div class="left-column">
+            <div class="restaurant-image-wrapper">
+                {% if restaurant.image %}
+                    <img class="restaurant-image" src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                {% elif restaurant.image_url %}
+                    <img class="restaurant-image" src="{{ restaurant.image_url }}" alt="{{ restaurant.name }}">
+                {% else %}
+                    <div class="restaurant-placeholder">No image</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="restaurant-info-header">
+                <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+                <div style="display:flex; align-items:center; gap:10px;">
+                {% if request.user == restaurant.owner %}
+                    <a href="{% url 'restaurant_edit' restaurant.id %}" class="owner-edit-btn">
+                        <i class="fas fa-pen"></i> Edit
+                    </a>
+                {% endif %}
+                    <div class="rating-badge">
+                        <span class="rating-icon"><i class="fas fa-star"></i></span>
+                        <span class="rating-value">{{ restaurant.rating }}</span>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        <form method="POST" action="{% url 'toggle_favorite' restaurant.id %}">
+                            {% csrf_token %}
+                            <button type="submit" style="background:none; border:none; cursor:pointer; font-size:1.5rem;">
+                                {% if is_favorited %}
+                                    <i class="fas fa-heart" style="color:red;"></i>
+                                {% else %}
+                                    <i class="far fa-heart" style="color:gray;"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="restaurant-tags">
+                {% for category in restaurant.categories.all %}
+                    <span class="category-tag">{{ category }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="restaurant-contact-info">
+                <i class="fas fa-map-marker-alt location-icon"></i>
+                <span class="restaurant-location">{{ restaurant.location }}</span>
+            </div>
+
+            <div class="restaurant-price-row">
+                <span class="restaurant-price-label">Price Range</span>
+                <span class="restaurant-price-pill">{{ restaurant.price_range }}</span>
+            </div>
+
+            <p class="restaurant-description">
+                {% if restaurant.description %}
+                    {{ restaurant.description }}
+                {% else %}
+                    Açıklama yok.
+                {% endif %}
+            </p>
+
+            <div class="restaurant-meta-info">
+                {% if restaurant.opening_hours %}
+                    <div class="meta-row">
+                        <i class="far fa-clock"></i>
+                        <span>{{ restaurant.opening_hours }}</span>
+                    </div>
+                {% endif %}
+                {% if restaurant.phone %}
+                    <div class="meta-row">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ restaurant.phone }}</span>
+                    </div>
+                {% endif %}
+                {% if restaurant.website %}
+                    <div class="meta-row">
+                        <i class="fas fa-globe"></i>
+                        <a href="{{ restaurant.website }}" target="_blank" rel="noopener">{{ restaurant.website }}</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if user_review %}
+                <div class="user-interaction-box">
+                    <i class="far fa-check-circle interaction-icon"></i>
+                    <span class="interaction-message">You rated this restaurant {{ user_review.rating }}/5 and can edit your review below.</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% with items=restaurant.menu_items.all %}
+    {% if items %}
+    <section class="menu-section">
+        <h2 class="menu-title"><i class="fas fa-utensils"></i> Menu</h2>
+        {% regroup items by section as sections %}
+        {% for sec in sections %}
+            {% if sec.grouper %}
+                <h3 class="menu-section-title">{{ sec.grouper }}</h3>
+            {% endif %}
+            <div class="menu-grid">
+                {% for item in sec.list %}
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <span class="menu-item-name">{{ item.item_name }}</span>
+                            {% if item.description %}
+                                <span class="menu-item-desc">{{ item.description }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="menu-item-price">₺{{ item.price }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+    {% endwith %}
+
+    <div
+        id="map"
+        data-lat="{{ restaurant.latitude|default:'41.0' }}"
+        data-lon="{{ restaurant.longitude|default:'29.0' }}"
+        style="height: 400px;"
+    ></div>
+
+    {% with reviews=restaurant.reviews.all %}
+        <section class="comments-section">
+            <div class="comments-header">
+                <div class="comments-heading">
+                    <div class="comments-title-row">
+                        <i class="far fa-comments comments-icon"></i>
+                        <h2 class="comments-title">Reviews</h2>
+                    </div>
+                    <p class="comments-subtitle">People who visited this place shared their thoughts here.</p>
+                </div>
+                <div class="comments-count">{{ reviews|length }} review{{ reviews|length|pluralize }}</div>
+            </div>
+
+            <div class="comments-layout">
+                <div class="review-feed">
+                    {% if user_review %}
+                        <article class="comment-card comment-card-own" id="your-review">
+                            <div class="comment-card-header">
+                                <div class="comment-profile">
+                                    <div class="comment-avatar">{{ user_review.user|default:"?"|truncatechars:2|upper }}</div>
+                                    <div class="comment-meta">
+                                        <div class="comment-user-row">
+                                            <span class="comment-user" title="{{ user_review.user|default:'Anonymous' }}">{{ user_review.user|default:"Anonymous"|truncatechars:18 }}</span>
+                                            <span class="comment-owner-badge">Your Review</span>
+                                        </div>
+                                        <span class="comment-title-text" title="{{ user_review.title }}">{{ user_review.title|truncatechars:28 }}</span>
+                                    </div>
+                                </div>
+                                <div class="comment-rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{ user_review.rating }}/5</span>
+                                </div>
+                            </div>
+                            <p class="comment-text">{{ user_review.review }}</p>
+
+                            {% include "restaurants/partials/replies.html" with review=user_review %}
+
+                            <div class="comment-actions">
+                                <a href="#review-form" class="btn btn-secondary">Edit Review</a>
+                                <form method="POST" action="{% url 'delete_review' user_review.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Delete Review</button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endif %}
+
+                    {% for review in other_reviews %}
+                        <article class="comment-card">
+                            <div class="comment-card-header">
+                                <div class="comment-profile">
+                                    <div class="comment-avatar">{{ review.user|default:"?"|truncatechars:2|upper }}</div>
+                                    <div class="comment-meta">
+                                        <span class="comment-user" title="{{ review.user|default:'Anonymous' }}">{{ review.user|default:"Anonymous"|truncatechars:18 }}</span>
+                                        <span class="comment-title-text" title="{{ review.title }}">{{ review.title|truncatechars:28 }}</span>
+                                    </div>
+                                </div>
+                                <div class="comment-rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{ review.rating }}/5</span>
+                                </div>
+                            </div>
+                            <p class="comment-text">{{ review.review }}</p>
+
+                            {% include "restaurants/partials/replies.html" with review=review %}
+                        </article>
+                    {% empty %}
+                        {% if not user_review %}
+                        <div class="review-empty">
+                            <div class="review-empty-icon"><i class="far fa-comment-dots"></i></div>
+                            <h3>No reviews yet</h3>
+                            <p>Be the first person to share an opinion about this restaurant.</p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <aside class="comment-form-card" id="review-form">
+                    <div class="comment-form-header">
+                        <span class="comment-form-kicker">
+                            {% if user_review %}Manage Your Review{% else %}Share Your Experience{% endif %}
+                        </span>
+                        <h3>{% if user_review %}Edit your review{% else %}Leave a review{% endif %}</h3>
+                        <p>
+                            {% if user_review %}
+                                Update your title, rating, or comment whenever your experience changes.
+                            {% else %}
+                                Your comment helps other people decide where to eat.
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if request.user.is_authenticated %}
+                        {% if user_review %}
+                            <div class="review-manager">
+                                <form class="comment-form" method="POST" action="{% url 'edit_review' user_review.id %}">
+                                    {% csrf_token %}
+
+                                    <div class="comment-field comment-field-full">
+                                        <label for="review-title">Title</label>
+                                        <input id="review-title" type="text" name="title" value="{{ user_review.title }}" placeholder="Short summary of your experience">
+                                    </div>
+
+                                    <div class="comment-field">
+                                        <label for="review-rating">Rating</label>
+                                        <input id="review-rating" type="number" name="rating" min="1" max="5" value="{{ user_review.rating }}" placeholder="1-5">
+                                    </div>
+
+                                    <div class="comment-field comment-field-full">
+                                        <label for="review-body">Comment</label>
+                                        <textarea id="review-body" name="review" placeholder="Tell people what stood out for you...">{{ user_review.review }}</textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary comment-field-full">Save Changes</button>
+                                </form>
+                                <div class="form-actions">
+                                    <a href="#your-review" class="btn btn-secondary">Back to your review</a>
+                                    <form method="POST" action="{% url 'delete_review' user_review.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Delete Review</button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% else %}
+                            <form class="comment-form" method="POST" action="{% url 'add_review' restaurant.id %}">
+                                {% csrf_token %}
+
+                                <div class="comment-field comment-field-full">
+                                    <label for="review-title">Title</label>
+                                    <input id="review-title" type="text" name="title" placeholder="Short summary of your experience">
+                                </div>
+
+                                <div class="comment-field">
+                                    <label for="review-rating">Rating</label>
+                                    <input id="review-rating" type="number" name="rating" min="1" max="5" placeholder="1-5">
+                                </div>
+
+                                <div class="comment-field comment-field-full">
+                                    <label for="review-body">Comment</label>
+                                    <textarea id="review-body" name="review" placeholder="Tell people what stood out for you..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary comment-field-full">Publish Review</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <div class="login-prompt">
+                            <p>To leave a review, please <a href="{% url 'login' %}">sign in</a>.</p>
+                        </div>
+                    {% endif %}
+                </aside>
+            </div>
+        </section>
+    {% endwith %}
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script id="restaurants-data" type="application/json">
+    [
+    {% for r in all_restaurants %}
+    {
+        "name": "{{ r.name|escapejs }}",
+        "lat": {{ r.latitude|default:"0" }},
+        "lon": {{ r.longitude|default:"0" }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+    ]
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const mapDiv = document.getElementById("map");
+
+    const lat = parseFloat(mapDiv.dataset.lat);
+    const lon = parseFloat(mapDiv.dataset.lon);
+
+    const map = L.map('map').setView([lat, lon], 14);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap & Carto'
+    }).addTo(map);
+
+    L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup("{{ restaurant.name }}")
+        .openPopup();
+
+    const data = JSON.parse(document.getElementById("restaurants-data").textContent);
+
+    data.forEach(place => {
+        if (!place.lat || !place.lon) return;
+
+        L.marker([place.lat, place.lon])
+            .addTo(map)
+            .bindPopup(place.name);
+    });
+
+});
+</script>
+{% endblock %}
